@@ -1,3 +1,8 @@
+
+"""
+RQTradeInETL: ETL process for Trade-In Activity Report
+Handles API fetch, staging/target table creation, timezone conversion, and merge logic.
+"""
 import requests
 import pyodbc
 import logging
@@ -30,111 +35,111 @@ END
             """
         )
         conn.commit()
-        # Create staging table (all columns as NVARCHAR(255)), add TradeInDateEST, PostTimeEST, ResponseTimeEST
+        # Create staging table (all columns as VARCHAR(255)), add TradeInDateEST, PostTimeEST, ResponseTimeEST
         cursor.execute(
             """
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'RQTradeinReportStaging' AND TABLE_SCHEMA = 'api')
 BEGIN
     CREATE TABLE api.RQTradeinReportStaging (
-        SaleInvoiceID NVARCHAR(255),
-        TradeInTransactionID NVARCHAR(255),
-        InvoiceIDByStore NVARCHAR(255),
-        InvoiceID NVARCHAR(255),
-        TradeInStatus NVARCHAR(255),
-        ItemID NVARCHAR(255),
-        ManufacturerModel NVARCHAR(255),
-        SerialNumber NVARCHAR(255),
-        StoreName NVARCHAR(255),
-        RegionName NVARCHAR(255),
-        TradeInDate NVARCHAR(255),
-        TradeInDateEST NVARCHAR(255),
-        PhoneRebateAmount NVARCHAR(255),
-        PromotionValue NVARCHAR(255),
-        PreDeviceValueAmount NVARCHAR(255),
-        PrePromotionValueAmount NVARCHAR(255),
-        TrackingNumber NVARCHAR(255),
-        OriginalTradeInvoiceID NVARCHAR(255),
-        OrderNumber NVARCHAR(255),
-        CreditApplicationNum NVARCHAR(255),
-        LocationCode NVARCHAR(255),
-        MasterOrderNumber NVARCHAR(255),
-        SequenceNumber NVARCHAR(255),
-        PromoValue NVARCHAR(255),
-        OrganicPrice NVARCHAR(255),
-        ComputedPrice NVARCHAR(255),
-        TradeInMobileNumber NVARCHAR(255),
-        SubmissionId NVARCHAR(255),
-        TradeInEquipMake NVARCHAR(255),
-        TradeInEquipCarrier NVARCHAR(255),
-        DeviceSku NVARCHAR(255),
-        TradeInDeviceId NVARCHAR(255),
-        LobType NVARCHAR(255),
-        OrderType NVARCHAR(255),
-        PurchaseDeviceId NVARCHAR(255),
-        TradeInAmount NVARCHAR(255),
-        AmountUsed NVARCHAR(255),
-        AmountPending NVARCHAR(255),
-        PromoCompletion NVARCHAR(255),
-        PostTime NVARCHAR(255),
-        PostTimeEST NVARCHAR(255),
-        ResponseTime NVARCHAR(255),
-        ResponseTimeEST NVARCHAR(255),
-        MobileNumber NVARCHAR(255),
+        SaleInvoiceID VARCHAR(255),
+        TradeInTransactionID VARCHAR(255),
+        InvoiceIDByStore VARCHAR(255),
+        InvoiceID VARCHAR(255),
+        TradeInStatus VARCHAR(255),
+        ItemID VARCHAR(255),
+        ManufacturerModel VARCHAR(255),
+        SerialNumber VARCHAR(255),
+        StoreName VARCHAR(255),
+        RegionName VARCHAR(255),
+        TradeInDate VARCHAR(255),
+        TradeInDateEST VARCHAR(255),
+        PhoneRebateAmount VARCHAR(255),
+        PromotionValue VARCHAR(255),
+        PreDeviceValueAmount VARCHAR(255),
+        PrePromotionValueAmount VARCHAR(255),
+        TrackingNumber VARCHAR(255),
+        OriginalTradeInvoiceID VARCHAR(255),
+        OrderNumber VARCHAR(255),
+        CreditApplicationNum VARCHAR(255),
+        LocationCode VARCHAR(255),
+        MasterOrderNumber VARCHAR(255),
+        SequenceNumber VARCHAR(255),
+        PromoValue VARCHAR(255),
+        OrganicPrice VARCHAR(255),
+        ComputedPrice VARCHAR(255),
+        TradeInMobileNumber VARCHAR(255),
+        SubmissionId VARCHAR(255),
+        TradeInEquipMake VARCHAR(255),
+        TradeInEquipCarrier VARCHAR(255),
+        DeviceSku VARCHAR(255),
+        TradeInDeviceId VARCHAR(255),
+        LobType VARCHAR(255),
+        OrderType VARCHAR(255),
+        PurchaseDeviceId VARCHAR(255),
+        TradeInAmount VARCHAR(255),
+        AmountUsed VARCHAR(255),
+        AmountPending VARCHAR(255),
+        PromoCompletion VARCHAR(255),
+        PostTime VARCHAR(255),
+        PostTimeEST VARCHAR(255),
+        ResponseTime VARCHAR(255),
+        ResponseTimeEST VARCHAR(255),
+        MobileNumber VARCHAR(255),
         ETLRowInsertedEST DATETIME DEFAULT GETDATE()
     )
 END
             """
         )
-        # Create target table if not exists
+        # Create target table if not exists, using appropriate datatypes
         cursor.execute(
             """
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'RQTradeinReport' AND TABLE_SCHEMA = 'api')
 BEGIN
     CREATE TABLE api.RQTradeinReport (
-        SaleInvoiceID NVARCHAR(255),
-        TradeInTransactionID NVARCHAR(255),
-        InvoiceIDByStore NVARCHAR(255),
-        InvoiceID NVARCHAR(255),
-        TradeInStatus NVARCHAR(255),
-        ItemID NVARCHAR(255),
-        ManufacturerModel NVARCHAR(255),
-        SerialNumber NVARCHAR(255),
-        StoreName NVARCHAR(255),
-        RegionName NVARCHAR(255),
-        TradeInDate NVARCHAR(255),
-        TradeInDateEST NVARCHAR(255),
-        PhoneRebateAmount NVARCHAR(255),
-        PromotionValue NVARCHAR(255),
-        PreDeviceValueAmount NVARCHAR(255),
-        PrePromotionValueAmount NVARCHAR(255),
-        TrackingNumber NVARCHAR(255),
-        OriginalTradeInvoiceID NVARCHAR(255),
-        OrderNumber NVARCHAR(255),
-        CreditApplicationNum NVARCHAR(255),
-        LocationCode NVARCHAR(255),
-        MasterOrderNumber NVARCHAR(255),
-        SequenceNumber NVARCHAR(255),
-        PromoValue NVARCHAR(255),
-        OrganicPrice NVARCHAR(255),
-        ComputedPrice NVARCHAR(255),
-        TradeInMobileNumber NVARCHAR(255),
-        SubmissionId NVARCHAR(255),
-        TradeInEquipMake NVARCHAR(255),
-        TradeInEquipCarrier NVARCHAR(255),
-        DeviceSku NVARCHAR(255),
-        TradeInDeviceId NVARCHAR(255),
-        LobType NVARCHAR(255),
-        OrderType NVARCHAR(255),
-        PurchaseDeviceId NVARCHAR(255),
-        TradeInAmount NVARCHAR(255),
-        AmountUsed NVARCHAR(255),
-        AmountPending NVARCHAR(255),
-        PromoCompletion NVARCHAR(255),
-        PostTime NVARCHAR(255),
-        PostTimeEST NVARCHAR(255),
-        ResponseTime NVARCHAR(255),
-        ResponseTimeEST NVARCHAR(255),
-        MobileNumber NVARCHAR(255),
+        SaleInvoiceID INT,
+        TradeInTransactionID INT,
+        InvoiceIDByStore VARCHAR(50),
+        InvoiceID VARCHAR(50),
+        TradeInStatus VARCHAR(50),
+        ItemID INT,
+        ManufacturerModel VARCHAR(100),
+        SerialNumber VARCHAR(100),
+        StoreName VARCHAR(100),
+        RegionName VARCHAR(100),
+        TradeInDate DATETIME,
+        TradeInDateEST DATETIME,
+        PhoneRebateAmount DECIMAL(18,2),
+        PromotionValue DECIMAL(18,2),
+        PreDeviceValueAmount DECIMAL(18,2),
+        PrePromotionValueAmount DECIMAL(18,2),
+        TrackingNumber VARCHAR(100),
+        OriginalTradeInvoiceID VARCHAR(50),
+        OrderNumber VARCHAR(50),
+        CreditApplicationNum VARCHAR(50),
+        LocationCode VARCHAR(50),
+        MasterOrderNumber VARCHAR(50),
+        SequenceNumber INT,
+        PromoValue DECIMAL(18,2),
+        OrganicPrice DECIMAL(18,2),
+        ComputedPrice DECIMAL(18,2),
+        TradeInMobileNumber VARCHAR(20),
+        SubmissionId VARCHAR(50),
+        TradeInEquipMake VARCHAR(50),
+        TradeInEquipCarrier VARCHAR(50),
+        DeviceSku VARCHAR(50),
+        TradeInDeviceId VARCHAR(50),
+        LobType VARCHAR(50),
+        OrderType VARCHAR(50),
+        PurchaseDeviceId VARCHAR(50),
+        TradeInAmount DECIMAL(18,2),
+        AmountUsed DECIMAL(18,2),
+        AmountPending DECIMAL(18,2),
+        PromoCompletion VARCHAR(50),
+        PostTime DATETIME,
+        PostTimeEST DATETIME,
+        ResponseTime DATETIME,
+        ResponseTimeEST DATETIME,
+        MobileNumber VARCHAR(20),
         ETLRowInsertedEST DATETIME DEFAULT GETDATE(),
         ETLRowUpdatedEST DATETIME
     )
@@ -178,19 +183,17 @@ VALUES (
 """
             cursor.execute(merge_sql)
             conn.commit()
-            # Clean PostTime and ResponseTime columns to 'yyyy-MM-dd HH:mm:ss.ffff' format
-            cursor.execute("UPDATE api.RQTradeinReport SET PostTime = CASE WHEN TRY_CONVERT(datetime2(4), REPLACE(REPLACE(PostTime, 'T', ' '), 'Z', '')) IS NOT NULL THEN FORMAT(TRY_CONVERT(datetime2(4), REPLACE(REPLACE(PostTime, 'T', ' '), 'Z', '')), 'yyyy-MM-dd HH:mm:ss.ffff') ELSE PostTime END, ResponseTime = CASE WHEN TRY_CONVERT(datetime2(4), REPLACE(REPLACE(ResponseTime, 'T', ' '), 'Z', '')) IS NOT NULL THEN FORMAT(TRY_CONVERT(datetime2(4), REPLACE(REPLACE(ResponseTime, 'T', ' '), 'Z', '')), 'yyyy-MM-dd HH:mm:ss.ffff') ELSE ResponseTime END")
-            conn.commit()
+            # Removed problematic SQL update for PostTime/ResponseTime format
             # Get counts
             inserted = cursor.execute("SELECT COUNT(*) FROM api.RQTradeinReport WHERE ETLRowInsertedEST = CONVERT(date, GETDATE())").fetchval()
             updated = cursor.execute("SELECT COUNT(*) FROM api.RQTradeinReport WHERE ETLRowUpdatedEST = CONVERT(date, GETDATE())").fetchval()
-            logging.info(f"Merge complete. Inserted: {inserted}, Updated: {updated}")
+            logging.info("Merge complete. Inserted: %s, Updated: %s", inserted, updated)
             # Delete all records from staging table except those with today's date
             cursor.execute("DELETE FROM api.RQTradeinReportStaging WHERE CONVERT(date, TradeInDate) <> CONVERT(date, GETDATE())")
             conn.commit()
             return {"inserted": inserted, "updated": updated}
         except Exception as e:
-            logging.error(f"Error in merge_to_target: {e}")
+            logging.error("Error in merge_to_target: %s", e)
             raise
     def get_sql_connection(self):
         conn_str = os.environ.get("CONNECTION_STRING")
@@ -204,23 +207,29 @@ VALUES (
             "Authorization": "Basic cG90YXRvLmV0bEB2aWN0cmEuY29tOjxuUVhmNSwjIXxoZj84T29hTUJe",
             "Cookie": "ApplicationGatewayAffinity=36f3760ed0711848f486da1adf16ec68; ApplicationGatewayAffinityCORS=36f3760ed0711848f486da1adf16ec68; DataConnectState=pnyjjmvt2zkwjkbtn42iteui"
         }
-        logging.info(f"Fetching API data for {params['StartDate']} to {params['StopDate']}...")
-        response = requests.get(url, headers=headers)
-        try:
-            response.raise_for_status()
-        except requests.HTTPError as e:
-            logging.error(f"API request failed: {e}. Response: {response.text}")
-            raise
-        data = response.json()
-        logging.info(f"Fetched {len(data)} records from API.")
-        try:
-            logging.info("API Data Sample: %s", json.dumps(data[:5], indent=2))
-        except Exception as e:
-            logging.info("API Data Sample logging failed: %s", e)
-        return data
+        logging.info("Fetching API data for %s to %s...", params['StartDate'], params['StopDate'])
+        max_retries = 3
+        backoff = 5
+        for attempt in range(1, max_retries + 1):
+            try:
+                response = requests.get(url, headers=headers, timeout=120)
+                response.raise_for_status()
+                data = response.json()
+                logging.info("Fetched %d records from API.", len(data))
+                logging.info("API Data Sample: %s", json.dumps(data[:5], indent=2))
+                return data
+            except requests.RequestException as e:
+                logging.warning("API request failed (attempt %d/%d): %s", attempt, max_retries, e)
+                if attempt == max_retries:
+                    logging.error("API request failed after %d attempts: %s", max_retries, e)
+                    raise
+                import time
+                time.sleep(backoff * attempt)
+
     def load_staging_data(self, conn, data):
         cursor = conn.cursor()
-        # Prepare SQL for bulk insert
+        from datetime import datetime
+        import pytz
         columns = [
             'SaleInvoiceID', 'TradeInTransactionID', 'InvoiceIDByStore', 'InvoiceID', 'TradeInStatus', 'ItemID', 'ManufacturerModel', 'SerialNumber', 'StoreName', 'RegionName', 'TradeInDate',
             'TradeInDateEST', 'PhoneRebateAmount', 'PromotionValue', 'PreDeviceValueAmount', 'PrePromotionValueAmount', 'TrackingNumber', 'OriginalTradeInvoiceID', 'OrderNumber', 'CreditApplicationNum',
@@ -235,5 +244,96 @@ VALUES (
         """
         # Bulk insert data
         cursor.fast_executemany = True
-        values_list = [[row.get(col, None) for col in columns] for row in data]
+        est = pytz.timezone('US/Eastern')
+        import re
+        def truncate_microseconds(dt_str):
+            # Handles any number of microsecond digits, pads/truncates to 6, preserves trailing Z
+            if not isinstance(dt_str, str):
+                return dt_str
+            match = re.match(r"(.*?\.)(\d+)(Z?)$", dt_str)
+            if match:
+                prefix, micro, z = match.groups()
+                micro = (micro + '000000')[:6]  # Pad with zeros, then truncate to 6 digits
+                return f"{prefix}{micro}{z}"
+            return dt_str
+
+        def to_datetime(dt_str, field_name=None):
+            if not dt_str:
+                return None
+            dt_str = truncate_microseconds(dt_str)
+            dt = None
+            formats = [
+                "%Y-%m-%dT%H:%M:%S.%fZ",
+                "%Y-%m-%dT%H:%M:%SZ",
+                "%Y-%m-%dT%H:%M:%S",
+                "%Y-%m-%d %H:%M:%S",
+                "%Y-%m-%d %H:%M:%S.%f",
+            ]
+            for fmt in formats:
+                try:
+                    dt = datetime.strptime(dt_str.replace('Z', ''), fmt)
+                    return dt
+                except ValueError:
+                    continue
+            try:
+                dt = datetime.fromisoformat(dt_str.replace('Z', ''))
+                return dt
+            except ValueError:
+                if field_name:
+                    logging.warning("Could not parse datetime for field %s: %s", field_name, dt_str)
+                return None
+
+        def to_est(dt_str):
+            if not dt_str:
+                return None
+            dt_str = truncate_microseconds(dt_str)
+            dt = None
+            formats = [
+                "%Y-%m-%dT%H:%M:%S.%fZ",
+                "%Y-%m-%dT%H:%M:%SZ",
+                "%Y-%m-%dT%H:%M:%S",
+                "%Y-%m-%d %H:%M:%S",
+                "%Y-%m-%d %H:%M:%S.%f",
+            ]
+            for fmt in formats:
+                try:
+                    dt = datetime.strptime(dt_str.replace('Z', ''), fmt)
+                    break
+                except ValueError:
+                    continue
+            if dt is None:
+                try:
+                    dt = datetime.fromisoformat(dt_str.replace('Z', ''))
+                except ValueError:
+                    return None
+            if dt.tzinfo is None:
+                dt = pytz.utc.localize(dt)
+            return dt.astimezone(est).strftime("%Y-%m-%d %H:%M:%S")
+        values_list = []
+        for row in data:
+            row = dict(row)
+            # Convert all date fields to Python datetime objects, log if conversion fails
+            for field in ['TradeInDate', 'PostTime', 'ResponseTime']:
+                val = row.get(field)
+                dt = to_datetime(val, field)
+                if dt is None and val:
+                    # If API value is present but conversion failed, log and use a fallback (current time)
+                    logging.warning("API value for %s was not a valid datetime: %s. Using current time.", field, val)
+                    dt = datetime.now()
+                row[field] = dt
+            # EST fields
+            for field, src in [('TradeInDateEST', 'TradeInDate'), ('PostTimeEST', 'PostTime'), ('ResponseTimeEST', 'ResponseTime')]:
+                src_val = row.get(src)
+                # Always pass a string to to_est
+                if isinstance(src_val, (str, type(None))):
+                    est_val = to_est(src_val)
+                else:
+                    # Convert datetime to ISO string
+                    est_val = to_est(src_val.isoformat())
+                est_dt = to_datetime(est_val, field)
+                if est_dt is None and est_val:
+                    logging.warning("EST value for %s was not a valid datetime: %s. Using current time.", field, est_val)
+                    est_dt = datetime.now()
+                row[field] = est_dt
+            values_list.append([row.get(col, None) for col in columns])
         cursor.executemany(sql, values_list)

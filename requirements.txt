@@ -1,4 +1,6 @@
-azure-functions
-requests
-pyodbc
+
+azure-functions==1.16.0
+requests==2.31.0
+pyodbc==5.1.0
+pytz==2024.1
 

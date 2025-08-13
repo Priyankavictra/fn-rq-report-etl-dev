@@ -1,18 +1,11 @@
 {
-  "scriptFile": "../function_app.py",
-  "entryPoint": "main",
+  "scriptFile": "__init__.py",
   "bindings": [
     {
-      "authLevel": "function",
-      "type": "httpTrigger",
+      "name": "myTimer",
+      "type": "timerTrigger",
       "direction": "in",
-      "name": "req",
-      "methods": ["post", "get"]
-    },
-    {
-      "type": "http",
-      "direction": "out",
-      "name": "$return"
+  "schedule": "0 0 6 * * *"
     }
   ]
 }
