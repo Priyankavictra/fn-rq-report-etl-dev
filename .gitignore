@@ -1,3 +1,5 @@
+# Ignore local batch file
+kill7071.bat
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
